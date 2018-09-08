@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import struct, math, time
 import operator
+import peakutils
 
 import pyaudio
 import wave
@@ -27,8 +28,24 @@ def pitch(freq):
 
 
 def cutoff(amplitudes):
-    for value in range(len(amplitudes)):
+    output = list(map(int, frequencyMultiplier * peakutils.indexes(amplitudes, thres=0.05, min_dist=1, thres_abs=False)))
+    return output
+    """buffer = amplitudes[30:]
+    for iteration in range(60):
+        buffer[iteration] = 0
+    for iteration in range(60):
+        print(len(buffer) - iteration)
+        buffer[len(buffer) - iteration] = 0
+    output = []
 
+    for time in range(3):
+        output.append(frequencyX[buffer.index(max(buffer))])
+
+        for iteration in range(100):
+            buffer[(output[time]-50) + iteration] = 0
+
+    return output
+    """
 
 
 def pythag(xValue, yValue):
@@ -69,6 +86,7 @@ Fs = RATE
 bitNumber = 8 * sampleWidth
 
 frequencyResolution = Fs // CHUNK
+frequencyMultiplier = Fs / CHUNK
 print(frequencyResolution)
 
 pianoRange = (28, 4186)
@@ -139,7 +157,7 @@ while data:
 
     line1.set_xdata(frequencyX)
     line1.set_ydata(fouriered)
-    print()
+    print(cutoff(fouriered))
 
     plt.draw()
     plt.pause(1e-17)
