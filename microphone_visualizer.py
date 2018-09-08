@@ -10,6 +10,26 @@ import operator
 import pyaudio
 import wave
 
+# https://www.johndcook.com/blog/2016/02/10/musical-pitch-notation/
+from math import log2, pow
+
+A4 = 440
+C0 = A4 * pow(2, -4.75)
+name = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+
+def pitch(freq):
+    # For a pitch P, the number of half steps from C0 to P is:
+    h = round(12 * log2(freq / C0))
+    octave = h // 12
+    n = h % 12
+    return name[n] + str(octave)
+
+
+def cutoff(amplitudes):
+    for value in range(len(amplitudes)):
+
+
 
 def pythag(xValue, yValue):
     return math.sqrt(xValue ** 2 + yValue ** 2)
@@ -19,7 +39,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 2
 RATE = 44100
 # https://stackoverflow.com/questions/6560680/pyaudio-memory-error
-CHUNK = 4096
+CHUNK = 8192
 RECORD_SECONDS = 5
 # WAVE_OUTPUT_FILENAME = "file.wav"
 
@@ -97,7 +117,7 @@ values = []
 data = stream.read(CHUNK)
 
 # https://stackoverflow.com/questions/444591/convert-a-string-of-bytes-into-an-int-python
-firstChunk = struct.unpack('<4096L', data)
+firstChunk = struct.unpack('<8192L', data)
 
 # https://stackoverflow.com/questions/3288250/how-do-i-get-integers-from-a-tuple-in-python/3288270
 values = (list(firstChunk))
@@ -112,11 +132,14 @@ while data:
     data = stream.read(CHUNK)
 
     # https://stackoverflow.com/questions/444591/convert-a-string-of-bytes-into-an-int-python
-    firstChunk = struct.unpack('<4096L', data)
+    firstChunk = struct.unpack('<8192L', data)
     values = (list(firstChunk))
 
+    fouriered = fourierDistribute(values)
+
     line1.set_xdata(frequencyX)
-    line1.set_ydata(fourierDistribute(values))
+    line1.set_ydata(fouriered)
+    print()
 
     plt.draw()
     plt.pause(1e-17)

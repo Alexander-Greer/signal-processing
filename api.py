@@ -3,6 +3,7 @@ from flask import request, jsonify
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Create some test data for our catalog in the form of a list of dictionaries.
 books = [
@@ -33,5 +34,6 @@ def home():
 @app.route('/api/v1/resources/books/all', methods=['GET'])
 def api_all():
     return jsonify(books)
+
 
 app.run()
