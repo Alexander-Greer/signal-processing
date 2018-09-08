@@ -5,6 +5,7 @@ from flask_cors import CORS
 app = flask.Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.config["DEBUG"] = True
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Create some test data for our catalog in the form of a list of dictionaries.
 books = [
@@ -26,5 +27,6 @@ def home():
 def api_process():
     print(request.form)
     return ""
+
 
 app.run()

@@ -16,7 +16,7 @@ def pythag(x, y):
 # "440_600_40960.wav"
 # "Sheep_Bleat.wav"
 # "250Hz.wav"
-wavFile = "440_600_40960.wav"
+wavFile = "Sheep_Bleat.wav"
 
 # https://stackoverflow.com/ questions/2060628/reading-wav-files-in-python
 file = wave.open(wavFile, 'rb')
@@ -184,6 +184,10 @@ for sample in range(len(fourierX)):
     if fourierY[sample] >= (fourierMaxValue // 10):
         frequencyZoomX.append(fourierX[sample])
         frequencyZoomY.append(fourierY[sample])
+
+print(fourierX)
+print("DIVIDER")
+print(fourierY)
 
 # plot
 tlplot.plot(np.arange(0, duration, 1/Fs), frames)
