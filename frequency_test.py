@@ -1,5 +1,6 @@
 # https://www.johndcook.com/blog/2016/02/10/musical-pitch-notation/
 from math import log2, pow
+from pychord import note_to_chord
 
 A4 = 440
 C0 = A4 * pow(2, -4.75)
@@ -14,10 +15,13 @@ def pitch(freq):
     return name[n] + str(octave)
 
 
-while True:
+"""while True:
     frequency = input("Frequency: ")
     try:
         frequency = int(frequency)
         print(pitch(frequency))
     except ValueError:
         print("Invalid Input")
+"""
+
+print(note_to_chord(['D', 'E', 'F#']))

@@ -24,7 +24,7 @@ chunk = 4096
 # "Sheep_Bleat.wav"
 # "250Hz.wav"
 # "piano_C_major.wav"
-filename = "Chopin_Nocturne_Opus_9_2.WAV"
+filename = "TEST.wav"
 
 
 # open a wav format music

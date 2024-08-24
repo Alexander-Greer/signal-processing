@@ -10,13 +10,16 @@ import peakutils
 
 import pyaudio
 import wave
+from pychord import note_to_chord
+
+myScreenSize = (16,7.2)
 
 # https://www.johndcook.com/blog/2016/02/10/musical-pitch-notation/
 from math import log2, pow
 
 A4 = 440
 C0 = A4 * pow(2, -4.75)
-name = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 
 def pitch(freq):
@@ -24,28 +27,38 @@ def pitch(freq):
     h = round(12 * log2(freq / C0))
     octave = h // 12
     n = h % 12
-    return name[n] + str(octave)
+    return notes[n]  # + str(octave)
 
 
 def cutoff(amplitudes):
-    output = list(map(int, frequencyMultiplier * peakutils.indexes(amplitudes, thres=0.05, min_dist=1, thres_abs=False)))
-    return output
-    """buffer = amplitudes[30:]
-    for iteration in range(60):
-        buffer[iteration] = 0
-    for iteration in range(60):
-        print(len(buffer) - iteration)
-        buffer[len(buffer) - iteration] = 0
-    output = []
+    domain = list(map(int, frequencyMultiplier * peakutils.indexes(amplitudes, thres=0.05, min_dist=1, thres_abs=False)))
 
-    for time in range(3):
-        output.append(frequencyX[buffer.index(max(buffer))])
+    values = []
+    for value in range(len(domain)):
+        values.append(amplitudes[value])
 
-        for iteration in range(100):
-            buffer[(output[time]-50) + iteration] = 0
+    # output = [domain, values]
 
-    return output
-    """
+    highestXAmps = sorted(values)[:3]
+
+    print(highestXAmps)
+
+    correspondingFreq = []
+
+    for i in highestXAmps:
+        correspondingFreq.append(domain[values.index(i)])
+
+    print(correspondingFreq)
+
+    return [correspondingFreq, highestXAmps]
+
+
+def removeListDuplicates(inputList):
+    return list(set(inputList))
+
+
+def applyFuncToList(func, inputList):
+    return map(func, inputList)
 
 
 def pythag(xValue, yValue):
@@ -86,7 +99,7 @@ Fs = RATE
 bitNumber = 8 * sampleWidth
 
 frequencyResolution = Fs // CHUNK
-frequencyMultiplier = Fs / CHUNK
+frequencyMultiplier = (Fs / CHUNK) # * 0.9
 print(frequencyResolution)
 
 pianoRange = (28, 4186)
@@ -133,6 +146,7 @@ values = []
 
 #read data
 data = stream.read(CHUNK)
+print(data)
 
 # https://stackoverflow.com/questions/444591/convert-a-string-of-bytes-into-an-int-python
 firstChunk = struct.unpack('<8192L', data)
@@ -144,6 +158,8 @@ line1, = plot.plot(frequencyX, fourierDistribute(values), 'r-')
 
 print(len(frequencyX))
 print(len(fourierDistribute(values)))
+
+plt.title("Analyzing...")
 
 #analyze stream
 while data:
@@ -157,7 +173,57 @@ while data:
 
     line1.set_xdata(frequencyX)
     line1.set_ydata(fouriered)
+
     print(cutoff(fouriered))
+
+    freqValues = cutoff(fouriered)[0][:]
+
+    # print(freqValues)
+
+    cutOffFreq = [freq for freq in freqValues]
+
+    # for freq in freqValues:
+    #     cutOffFreq.append(freq)
+
+    # print(cutOffFreq)
+
+    identifiedNotes = removeListDuplicates(applyFuncToList(pitch, cutOffFreq))
+
+    # print(identifiedNotes)
+
+    # for value in range(12 - len(identifiedNotes)):
+    #     identifiedNotes.append("0")
+    # print(identifiedNotes)
+
+    sortedNoteIndicies = []
+
+    for note in identifiedNotes:
+        sortedNoteIndicies.append([notes.index(note), note])
+
+    # print(sortedNoteIndicies)
+
+    sortedNoteIndicies = sorted(sortedNoteIndicies)
+
+    # print(sortedNoteIndicies)
+
+    sortedNotes = []
+
+    for note in sortedNoteIndicies:
+        sortedNotes.append(note[1])
+
+    print(sortedNotes)
+
+    try:
+        chord = note_to_chord(sortedNotes)
+        if not chord == []:
+            print(chord)
+            plt.title(str(chord))
+        else:
+            print(["Analyzing..."])
+            # plt.title("Analyzing...")
+    except ValueError:
+        print(["Analyzing..."])
+        # plt.title("Analyzing...")
 
     plt.draw()
     plt.pause(1e-17)
